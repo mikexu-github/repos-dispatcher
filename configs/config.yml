@@ -1,0 +1,56 @@
+
+# port 端口
+# e.g :80
+port: :80
+
+# model 模式 debug|release
+# debug模式，可以输出更加详细的日志，但是运行速度会减慢
+model: debug
+
+# processorNum 分发并行数
+processorNum: 5
+
+# syncChannel 内部分布式同步
+syncChannel: dispatcher:task:listen:rest
+
+#  -------------------- hand out --------------------
+handout:
+  deadline: 30
+  dialTimeout: 30
+  maxIdleConns: 10
+
+#  -------------------- log --------------------
+# comply with zap log specification
+log:
+  level: 0
+  development: false
+  sampling:
+    initial: 100
+    thereafter: 100
+  outputPath:
+    - stderr
+  errorOutputPath:
+    - stderr
+
+# -------------------- kafka --------------------
+kafka:
+  broker:
+    - 192.168.208.29:9092
+    - 192.168.208.30:9092
+    - 192.168.208.31:9092
+
+# -------------------- mysql --------------------
+mysql: 
+  db: dispatcher
+  host: 192.168.208.253:3306
+  user: qxp
+  password: WY0UrHy*%Mzju
+  log: true
+
+redis:
+  addrs:
+    - 192.168.208.8:6379
+    - 192.168.208.10:6379
+    - 192.168.208.11:6379
+  username:
+  password:
