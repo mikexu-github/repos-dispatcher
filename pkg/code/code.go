@@ -18,7 +18,7 @@ const (
 )
 
 // CodeTable 码表
-var CodeTable = map[int]string{
+var CodeTable = map[int64]string{
 	TaskAlreadyExist: "task already exist.",
 	InvalidTaskType:  "invalid task type.",
 	InvalidTaskState: "invalid task state.",

@@ -42,9 +42,9 @@ kafka:
 # -------------------- mysql --------------------
 mysql: 
   db: dispatcher
-  host: 192.168.208.253:3306
-  user: qxp
-  password: WY0UrHy*%Mzju
+  host: 127.0.0.1:3306
+  user: root
+  password: 29571935
   log: true
 
 redis:
