@@ -89,3 +89,11 @@ func (t *taskLineRepo) Lock(ctx context.Context, key string, val interface{}, tt
 func (t *taskLineRepo) UnLock(ctx context.Context, key string) error {
 	return t.c.Del(ctx, t.LockKey()+key).Err()
 }
+
+func (t *taskLineRepo) Keys(ctx context.Context) ([]string, error) {
+	result, err := t.c.ZRange(ctx, redisKey+":line:heap", 0, 100).Result()
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}

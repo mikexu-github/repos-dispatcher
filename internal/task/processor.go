@@ -69,7 +69,7 @@ func NewProcessor(ctx context.Context, conf *config.Config) (*Processor, error) 
 
 const (
 	silence     = 60 * 60
-	lockTimeout = time.Duration(30) * time.Second
+	lockTimeout = time.Duration(2) * time.Second
 	deviation   = 1
 	subTimeout  = 30 * time.Second
 )
@@ -102,6 +102,7 @@ func (p *Processor) process(c context.Context) {
 
 // DO 事物处理
 func (p *Processor) DO(c context.Context) {
+A:
 	for {
 		ctx := logger.GenRequestID(c)
 		// 获取最近任务
@@ -120,48 +121,64 @@ func (p *Processor) DO(c context.Context) {
 			next = 1
 		}
 
+		tick := time.Tick(time.Duration(next) * time.Second)
 		select {
-		case <-time.Tick(time.Duration(next) * time.Second):
 		case <-p.reset:
-			continue
+			if heap == nil {
+				continue
+			}
+			next = heap.TriggerTime - time2.NowUnix()
+			if next < 0 {
+
+				continue
+			}
+
+			tick = time.Tick(time.Duration(next) * time.Second)
+		case <-tick:
+
 		case <-ctx.Done():
+
 			return
 		}
 
 		var begin int64 = -1
+
+	B:
 		for {
 			begin++
 
 			// 抢占执行权
-			heap, err := p.taskLineRepo.GetHeap(ctx, begin)
+			heap1, err := p.taskLineRepo.GetHeap(ctx, begin)
+			//heap1 := heap
 			if err != nil {
 				logger.Logger.Errorw(err.Error(), logger.STDRequestID(ctx))
-				continue
+				continue A
 			}
 			// 没有可以执行任务
-			if heap == nil || heap.TriggerTime-time2.NowUnix() > deviation {
-				break
+			if heap1 == nil || heap1.TriggerTime-time2.NowUnix() > deviation {
+
+				break B
 			}
 
-			ok, err := p.taskLineRepo.Lock(ctx, heap.TaskID, heap.TriggerTime, lockTimeout)
+			ok, err := p.taskLineRepo.Lock(ctx, heap1.TaskID, heap1.TriggerTime, lockTimeout)
 			if err != nil {
+
 				logger.Logger.Errorw(err.Error(), logger.STDRequestID(ctx))
-				continue
+				continue B
 			}
 			// 抢占失败
 			if !ok {
-				continue
+				continue A
 			}
 
 			// 从heap移除任务
-			err = p.taskLineRepo.DeleteHeap(ctx, heap)
+			err = p.taskLineRepo.DeleteHeap(ctx, heap1)
 			if err != nil {
 				// 只能报个警告
 				logger.Logger.Errorw(err.Error(), logger.STDRequestID(ctx))
 			}
-
 			// 分发任务
-			p.input <- heap
+			p.input <- heap1
 		}
 	}
 }
