@@ -22,7 +22,7 @@ handout:
 #  -------------------- log --------------------
 # comply with zap log specification
 log:
-  level: 0
+  level: -1
   development: false
   sampling:
     initial: 100
