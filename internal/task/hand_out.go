@@ -1,8 +1,14 @@
 package task
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/quanxiang-cloud/dispatcher/pkg/misc/logger"
+	"net"
+	"net/http"
 	"strings"
 	"time"
 
@@ -42,47 +48,47 @@ func NewHTTPHandOut(conf *Config) *HTTPHandOut {
 
 // HandOut 分发
 func (h *HTTPHandOut) HandOut(ctx context.Context, taskLine *models.TaskLine) error {
-	fmt.Println("task run,", time.Now().Unix(), taskLine.TaskID, taskLine.Code)
+	logger.Logger.Info("task run,", time.Now().Unix(), taskLine.TaskID, taskLine.Code)
 	// TODO 连接池
-	//client := http.Client{
-	//	Transport: &http.Transport{
-	//		Dial: func(netw, addr string) (net.Conn, error) {
-	//			deadline := time.Now().Add(h.conf.Deadline)
-	//			c, err := net.DialTimeout(netw, addr, h.conf.DialTimeout)
-	//			if err != nil {
-	//				return nil, err
-	//			}
-	//			c.SetDeadline(deadline)
-	//			return c, nil
-	//		},
-	//		MaxIdleConns: h.conf.MaxIdleConns,
-	//	},
-	//}
+	client := http.Client{
+		Transport: &http.Transport{
+			Dial: func(netw, addr string) (net.Conn, error) {
+				deadline := time.Now().Add(h.conf.Deadline)
+				c, err := net.DialTimeout(netw, addr, h.conf.DialTimeout)
+				if err != nil {
+					return nil, err
+				}
+				c.SetDeadline(deadline)
+				return c, nil
+			},
+			MaxIdleConns: h.conf.MaxIdleConns,
+		},
+	}
 
-	//jsonBody, err := json.Marshal(handOutReq{
-	//	Code: taskLine.Code,
-	//})
-	//if err != nil {
-	//	return err
-	//}
+	jsonBody, err := json.Marshal(handOutReq{
+		Code: taskLine.Code,
+	})
+	if err != nil {
+		return err
+	}
 
-	//req, err := http.NewRequest("POST", genHandOutURL(taskLine.Code), bytes.NewBuffer(jsonBody))
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//req.Header.Add("Context-Type", "application/json")
-	//req.Header.Add("Requsest-Id", logger.STDRequestID(ctx).String)
-	//
-	//resp, err := client.Do(req)
-	//if err != nil {
-	//	return err
-	//}
-	//defer resp.Body.Close()
-	//
-	//if resp.StatusCode != http.StatusOK {
-	//	return errors.New("http status [" + resp.Status + "]")
-	//}
+	req, err := http.NewRequest("POST", genHandOutURL(taskLine.Code), bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Add("Context-Type", "application/json")
+	req.Header.Add("Requsest-Id", logger.STDRequestID(ctx).String)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("http status [" + resp.Status + "]")
+	}
 	return nil
 }
 
