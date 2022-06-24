@@ -2,7 +2,6 @@ package task
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/quanxiang-cloud/dispatcher/internal/models"
@@ -61,15 +60,15 @@ func NewProcessor(ctx context.Context, conf *config.Config) (*Processor, error) 
 		taskRepo:     mysql.NewTaskRepo(),
 		taskLineRepo: redis.NewTaskLineRepo(client),
 	}
-	keys, _ := p.taskLineRepo.Keys(ctx)
-	for k := range keys {
-		fmt.Println(keys[k])
-		heap, _ := p.taskLineRepo.GetHeap(ctx, 0)
-		fmt.Println(heap)
-		p.taskLineRepo.DeleteHeap(ctx, &models.TaskLineHeap{
-			TaskID: keys[k],
-		})
-	}
+	//keys, _ := p.taskLineRepo.Keys(ctx)
+	//for k := range keys {
+	//	fmt.Println(keys[k])
+	//	heap, _ := p.taskLineRepo.GetHeap(ctx, 0)
+	//	fmt.Println(heap)
+	//	p.taskLineRepo.DeleteHeap(ctx, &models.TaskLineHeap{
+	//		TaskID: keys[k],
+	//	})
+	//}
 	p.process(ctx)
 	go p.DO(ctx)
 	go p.Monitor(ctx)
