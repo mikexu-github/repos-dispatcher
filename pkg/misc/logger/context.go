@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/quanxiang-cloud/flow/pkg/misc/id2"
+	"github.com/quanxiang-cloud/dispatcher/pkg/misc/id2"
 	"go.uber.org/zap"
 )
 

@@ -10,7 +10,6 @@ require (
 	github.com/go-redis/redis/v8 v8.9.0
 	github.com/google/uuid v1.3.0
 	github.com/olivere/elastic/v7 v7.0.32
-	github.com/quanxiang-cloud/flow v0.0.0-20220609033627-e0e78fb16401
 	github.com/robfig/cron v1.2.0
 	github.com/stretchr/testify v1.7.1
 	go.mongodb.org/mongo-driver v1.9.1
