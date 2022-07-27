@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/bmizerany/assert"
-	. "github.com/quanxiang-cloud/flow/pkg/misc/test"
+	. "github.com/quanxiang-cloud/dispatcher/pkg/misc/test"
 	"github.com/stretchr/testify/suite"
 )
 

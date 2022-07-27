@@ -40,7 +40,7 @@ func NewTask(conf *config.Config) (Task, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	db.Logger.LogMode(4)
 	client, err := redis2.NewClient(conf.Redis)
 	if err != nil {
 		return nil, err
@@ -230,6 +230,7 @@ func nextTime(t models.TaskType, timebar string) (int64, error) {
 // UpdateTaskStateReq 修改任务状态[参数]
 type UpdateTaskStateReq struct {
 	TaskID string `json:"taskID"`
+	Code   string `json:"code"`
 	State  int    `json:"state"`
 }
 
@@ -238,25 +239,35 @@ type UpdateTaskStateResp struct{}
 
 // UpdateTaskState 修改任务状态
 func (t *task) UpdateTaskState(ctx context.Context, req *UpdateTaskStateReq) (*UpdateTaskStateResp, error) {
-	tx := t.db.Begin()
 
-	task, err := t.taskRepo.Get(tx, req.TaskID)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
+	var tk = new(models.Task)
+	var err error = nil
+	if req.TaskID != "" {
+		tk, err = t.taskRepo.Get(t.db, req.TaskID)
+	}
+	if req.Code != "" {
+		tk, err = t.taskRepo.GetWithCode(t.db, req.Code)
 	}
 
+	if err != nil {
+		return nil, err
+	}
+	if tk == nil {
+		return nil, nil
+	}
+
+	tx := t.db.Begin()
 	switch req.State {
 	case models.OnState:
-		if task.State == models.OnState {
+		if tk.State == models.OnState {
 			return nil, nil
 		}
-		err = t.updateTaskOn(ctx, tx, task)
+		err = t.updateTaskOn(ctx, tx, tk)
 	case models.StandByState:
-		if task.State == models.StandByState {
+		if tk.State == models.StandByState {
 			return nil, nil
 		}
-		err = t.updateTaskStandby(ctx, tx, task)
+		err = t.updateTaskStandby(ctx, tx, tk)
 	default:
 		return nil, error2.NewError(code.InvalidTaskType)
 	}
@@ -265,14 +276,14 @@ func (t *task) UpdateTaskState(ctx context.Context, req *UpdateTaskStateReq) (*U
 		return nil, err
 	}
 
-	task.State = models.TaskState(req.State)
-	task.UpdatedAt = time2.NowUnix()
-	err = t.taskRepo.UpdateState(tx, task)
+	tk.State = models.TaskState(req.State)
+	tk.UpdatedAt = time2.NowUnix()
+	err = t.taskRepo.UpdateState(tx, tk)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	err = t.redisClient.Publish(ctx, t.conf.SyncChannel, task.ID).Err()
+	err = t.redisClient.Publish(ctx, t.conf.SyncChannel, tk.ID).Err()
 	if err != nil {
 		tx.Rollback()
 		return nil, err

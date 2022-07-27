@@ -44,7 +44,7 @@ func (t *taskRepo) UpdateState(db *gorm.DB, task *models.Task) error {
 func (t *taskRepo) GetWithCode(db *gorm.DB, code string) (*models.Task, error) {
 	task := new(models.Task)
 	err := db.Table(t.TableName()).
-		Where("code = ?", code).
+		Where("code=?", code).
 		Find(task).
 		Error
 	if err != nil {

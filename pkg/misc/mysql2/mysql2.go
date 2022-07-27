@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/quanxiang-cloud/flow/pkg/misc/logger"
+	"github.com/quanxiang-cloud/dispatcher/pkg/misc/logger"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

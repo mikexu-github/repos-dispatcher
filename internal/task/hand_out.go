@@ -6,13 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/quanxiang-cloud/dispatcher/pkg/misc/logger"
 	"net"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/quanxiang-cloud/dispatcher/internal/models"
-	"github.com/quanxiang-cloud/dispatcher/pkg/misc/logger"
 )
 
 type handOut interface {
@@ -48,6 +48,7 @@ func NewHTTPHandOut(conf *Config) *HTTPHandOut {
 
 // HandOut 分发
 func (h *HTTPHandOut) HandOut(ctx context.Context, taskLine *models.TaskLine) error {
+	logger.Logger.Info("task run,", time.Now().Unix(), taskLine.TaskID, taskLine.Code)
 	// TODO 连接池
 	client := http.Client{
 		Transport: &http.Transport{

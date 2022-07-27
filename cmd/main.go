@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	configPath = flag.String("config", "../configs/config.yml", "-config 配置文件地址")
+	configPath = flag.String("config", "configs/config.yml", "-config 配置文件地址")
 )
 
 func main() {

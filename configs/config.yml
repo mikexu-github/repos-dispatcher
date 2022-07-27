@@ -22,7 +22,7 @@ handout:
 #  -------------------- log --------------------
 # comply with zap log specification
 log:
-  level: 0
+  level: -1
   development: false
   sampling:
     initial: 100
@@ -42,15 +42,15 @@ kafka:
 # -------------------- mysql --------------------
 mysql: 
   db: dispatcher
-  host: 127.0.0.1:3306
+  host: 192.168.200.13:32258
   user: root
-  password: 29571935
+  password: qxp1234
   log: true
 
 redis:
   addrs:
-    - 192.168.208.8:6379
-    - 192.168.208.10:6379
-    - 192.168.208.11:6379
+    - 192.168.200.18:6379
+    - 192.168.200.19:6379
+    - 192.168.200.20:6379
   username:
   password:

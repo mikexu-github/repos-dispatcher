@@ -50,4 +50,6 @@ type TaskLineRepo interface {
 
 	// UnLock 解除分布式锁
 	UnLock(ctx context.Context, key string) error
+
+	Keys(ctx context.Context) ([]string, error)
 }
